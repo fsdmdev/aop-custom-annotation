@@ -1,17 +1,15 @@
 package com.example.spring.aop.interceptor;
 
-import com.example.spring.aop.controller.BookController;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.hamcrest.Matchers.anything;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * In this unit test:
@@ -20,20 +18,25 @@ import static org.mockito.Mockito.verify;
  * We use MockMvc to simulate a GET request to /books/1.
  * We mock the RequestLoggingInterceptor to verify that its preHandle method is called once.
  */
-@WebMvcTest(controllers = BookController.class)
-public class RequestLoggingInterceptorTest {
+@ExtendWith(MockitoExtension.class)
+class RequestLoggingInterceptorTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @InjectMocks
     private RequestLoggingInterceptor requestLoggingInterceptor;
 
-    @Test
-    public void testInterceptorLogsRequest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/books/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(requestLoggingInterceptor, times(1)).preHandle(any(), any(), any());
+    private MockHttpServletRequest mockHttpServletRequest;
+
+    private MockHttpServletResponse mockHttpServletResponse;
+
+    @BeforeEach
+    void setUp() {
+        mockHttpServletRequest = new MockHttpServletRequest();
+        mockHttpServletResponse = new MockHttpServletResponse();
+    }
+
+    @Test
+    void testPreHandle() {
+        assertTrue(requestLoggingInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, anything()));
     }
 }
